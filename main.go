@@ -3,10 +3,12 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/RamboXD/DB-Bonus/controllers"
 	"github.com/RamboXD/DB-Bonus/initializers"
 	"github.com/RamboXD/DB-Bonus/routes"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -47,14 +49,14 @@ func main() {
 		log.Fatal("? Could not load environment variables", err)
 	}
 
-	// corsConfig := cors.DefaultConfig()
-	// corsConfig.AllowOrigins = []string{"https://d-bonus-front.vercel.app", "http://localhost:5173"}
-    // corsConfig.AllowMethods = []string{"POST", "GET", "PUT", "OPTIONS"}
-    // corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "User-Agent", "Cache-Control", "Pragma"}
-    // corsConfig.ExposeHeaders = []string{"Content-Length"}
-    // corsConfig.AllowCredentials = true
-    // corsConfig.MaxAge = 12 * time.Hour
-	// server.Use(cors.New(corsConfig))
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"https://d-bonus-front.vercel.app"}
+    corsConfig.AllowMethods = []string{"POST", "GET", "PUT", "OPTIONS"}
+    corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "User-Agent", "Cache-Control", "Pragma"}
+    corsConfig.ExposeHeaders = []string{"Content-Length"}
+    corsConfig.AllowCredentials = true
+    corsConfig.MaxAge = 12 * time.Hour
+	server.Use(cors.New(corsConfig))
 
 	router := server.Group("/api")
 	router.GET("/healthchecker", func(ctx *gin.Context) {
