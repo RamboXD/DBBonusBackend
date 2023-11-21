@@ -3,7 +3,7 @@ services:
     name: golang
     runtime: docker
     plan: free
-    repo: https://github.com/RamboXD/DBBonus.git
+    repo: https://github.com/RamboXD/DBBonusBackend.git
     region: frankfurt
     branch: main
     envVars:
