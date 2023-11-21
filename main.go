@@ -51,7 +51,7 @@ func main() {
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = []string{"http://localhost:5173", "https://d-bonus-front.vercel.app"}
 	corsConfig.AllowCredentials = true
-	corsConfig.AddAllowHeaders("Authorization")
+	corsConfig.AddAllowHeaders("Authorization", "Content-Type","X-Requested-With")
 	server.Use(cors.New(corsConfig))
 
 	router := server.Group("/api")
