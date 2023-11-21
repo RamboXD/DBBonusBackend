@@ -49,7 +49,7 @@ func main() {
 	}
 
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:5173", config.ClientOrigin}
+	corsConfig.AllowOrigins = []string{"http://localhost:5173", "https://d-bonus-front.vercel.app"}
 	corsConfig.AllowCredentials = true
 	corsConfig.AddAllowHeaders("Authorization")
 	server.Use(cors.New(corsConfig))
