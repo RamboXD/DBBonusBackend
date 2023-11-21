@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: golang
+    runtime: docker
+    plan: free
+    repo: https://github.com/RamboXD/DBBonus.git
+    region: frankfurt
+    branch: main
+    envVars:
+      - key: POSTGRES_HOST
+        sync: false
+      - key: POSTGRES_USER
+        sync: false
+      - key: POSTGRES_PASSWORD
+        sync: false
+      - key: POSTGRES_DB
+        sync: false
+      - key: POSTGRES_PORT
+        sync: false
+      - key: PORT
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: ACCESS_TOKEN_PRIVATE_KEY
+        sync: false
+      - key: ACCESS_TOKEN_PUBLIC_KEY
+        sync: false
+      - key: ACCESS_TOKEN_EXPIRED_IN
+        sync: false
+      - key: ACCESS_TOKEN_MAXAGE
+        sync: false
+      - key: REFRESH_TOKEN_PRIVATE_KEY
+        sync: false
+      - key: REFRESH_TOKEN_PUBLIC_KEY
+        sync: false
+      - key: REFRESH_TOKEN_EXPIRED_IN
+        sync: false
+      - key: REFRESH_TOKEN_MAXAGE
+        sync: false
