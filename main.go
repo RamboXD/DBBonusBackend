@@ -49,9 +49,9 @@ func main() {
 	}
 
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:5173", "https://d-bonus-front.vercel.app"}
+	corsConfig.AllowOrigins = []string{"https://d-bonus-front.vercel.app", "http://localhost:5173"}
 	corsConfig.AllowCredentials = true
-	corsConfig.AddAllowHeaders("Authorization", "Content-Type","X-Requested-With")
+	corsConfig.AddAllowHeaders("Authorization, Content-Type, X-Requested-With")
 	server.Use(cors.New(corsConfig))
 
 	router := server.Group("/api")
@@ -65,4 +65,5 @@ func main() {
 	CaregiverRouteController.CaregiverRoute(router)
 	log.Fatal(server.Run(":" + config.ServerPort))
 }
+
 
