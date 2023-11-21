@@ -52,7 +52,7 @@ func main() {
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = []string{"https://d-bonus-front.vercel.app"}
     corsConfig.AllowMethods = []string{"POST", "GET", "PUT", "OPTIONS"}
-    corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "User-Agent", "Cache-Control", "Pragma"}
+    corsConfig.AllowHeaders = []string{"X-Requested-With","Origin", "Content-Type", "Authorization", "Accept", "User-Agent", "Cache-Control", "Pragma"}
     corsConfig.ExposeHeaders = []string{"Content-Length"}
     corsConfig.AllowCredentials = true
     corsConfig.MaxAge = 12 * time.Hour
