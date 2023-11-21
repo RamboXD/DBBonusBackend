@@ -29,7 +29,8 @@ Barlyk komekshilerdi tabu
 func (mc *MemberController) GetCaregivers(ctx *gin.Context) {
     var caregivers []models.Caregiver
 
-    result := mc.DB.Find(&caregivers)
+    // Preload the User data for each Caregiver
+    result := mc.DB.Preload("User").Find(&caregivers)
     if result.Error != nil {
         ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Could not retrieve caregivers"})
         return
