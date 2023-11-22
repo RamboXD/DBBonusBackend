@@ -27,8 +27,24 @@ Barlyk jumystardy tabu
 func (cc *CaregiverController) GetJobs(ctx *gin.Context) {
     var jobs []models.Job
 
-    // Retrieve all jobs from the database
-    result := cc.DB.Find(&jobs)
+    // Assuming you have a way to get the current caregiver's ID
+    currentCaregiver, exists := ctx.Get("currentCaregiver")
+    if !exists {
+        ctx.JSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "Caregiver not found"})
+        return
+    }
+    caregiver, ok := currentCaregiver.(models.Caregiver)
+    if !ok {
+        ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Caregiver information is not valid"})
+        return
+    }
+
+    // Get the list of JobIDs for which the current caregiver has applied
+    var appliedJobIDs []uuid.UUID
+    cc.DB.Model(&models.JobApplication{}).Where("caregiver_user_id = ?", caregiver.CaregiverUserID).Pluck("job_id", &appliedJobIDs)
+
+    // Retrieve all jobs that the caregiver hasn't applied for, preloading Member and User data
+    result := cc.DB.Preload("Member").Preload("Member.User").Where("job_id NOT IN ?", appliedJobIDs).Find(&jobs)
     if result.Error != nil {
         ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to retrieve jobs"})
         return
@@ -37,6 +53,64 @@ func (cc *CaregiverController) GetJobs(ctx *gin.Context) {
     // Return the list of jobs
     ctx.JSON(http.StatusOK, gin.H{"status": "success", "jobs": jobs})
 }
+func (cc *CaregiverController) GetCaregiverApplications(ctx *gin.Context) {
+    currentCaregiver, exists := ctx.Get("currentCaregiver")
+    if !exists {
+        ctx.JSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "Caregiver not found"})
+        return
+    }
+    caregiver, ok := currentCaregiver.(models.Caregiver)
+    if !ok {
+        ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Caregiver information is not valid"})
+        return
+    }
+
+    var applications []models.JobApplication
+
+    // Retrieve all applications made by the caregiver, preloading the Job, Member, and User details
+    result := cc.DB.Preload("Job").Preload("Job.Member").Preload("Job.Member.User").Where("caregiver_user_id = ?", caregiver.CaregiverUserID).Find(&applications)
+    if result.Error != nil {
+        ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to retrieve applications"})
+        return
+    }
+
+    // Create a slice to store the structured response
+    var structuredApplications []map[string]interface{}
+
+    for _, app := range applications {
+        structuredApp := map[string]interface{}{
+            "DateApplied": app.DateApplied,
+            "JobDetails": map[string]interface{}{
+                "JobID": app.Job.JobID,
+                "MemberUserID": app.Job.MemberUserID,
+                "RequiredCaregivingType": app.Job.RequiredCaregivingType,
+                "OtherRequirements": app.Job.OtherRequirements,
+                "DatePosted": app.Job.DatePosted,
+                "MemberDetails": map[string]interface{}{
+                    "MemberUserID": app.Job.Member.MemberUserID,
+                    "HouseRules": app.Job.Member.HouseRules,
+                    "UserDetails": map[string]interface{}{
+                        "UserID": app.Job.Member.User.UserID,
+                        "Email": app.Job.Member.User.Email,
+                        "GivenName": app.Job.Member.User.GivenName,
+                        "Surname": app.Job.Member.User.Surname,
+                        "City": app.Job.Member.User.City,
+                        "PhoneNumber": app.Job.Member.User.PhoneNumber,
+                        "ProfileDescription": app.Job.Member.User.ProfileDescription,
+                    },
+                },
+            },
+        }
+        structuredApplications = append(structuredApplications, structuredApp)
+    }
+
+    // Return the structured list of applications
+    ctx.JSON(http.StatusOK, gin.H{"status": "success", "applications": structuredApplications})
+
+}
+
+
+
 
 func (cc *CaregiverController) ApplyJob(ctx *gin.Context) {
     jobIDStr := ctx.Param("id")
@@ -84,7 +158,7 @@ func (cc *CaregiverController) GetAppointments(ctx *gin.Context) {
     }
 
     var appointments []models.Appointment
-    if err := cc.DB.Where("caregiver_user_id = ?", caregiver.CaregiverUserID).Find(&appointments).Error; err != nil {
+    if err := cc.DB.Preload("Member").Preload("Member.User").Where("caregiver_user_id = ?", caregiver.CaregiverUserID).Find(&appointments).Error; err != nil {
         ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to retrieve appointments"})
         return
     }

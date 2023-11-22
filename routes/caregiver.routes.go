@@ -21,5 +21,6 @@ func (rc *CaregiverRouteController) CaregiverRoute(rg *gin.RouterGroup) {
     caregiverRouter.GET("/getAppointments", middleware.CaregiverCheck(), rc.caregiverController.GetAppointments) 
     caregiverRouter.POST("/applyJob/:id", middleware.CaregiverCheck(), rc.caregiverController.ApplyJob) 
     caregiverRouter.POST("/appointment/:id", middleware.CaregiverCheck(), rc.caregiverController.UpdateAppointmentStatus) 
+    caregiverRouter.GET("/applications", middleware.CaregiverCheck(), rc.caregiverController.GetCaregiverApplications) 
 }
 
