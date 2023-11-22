@@ -27,24 +27,10 @@ Barlyk jumystardy tabu
 func (cc *CaregiverController) GetJobs(ctx *gin.Context) {
     var jobs []models.Job
 
-    // Assuming you have a way to get the current caregiver's ID
-    currentCaregiver, exists := ctx.Get("currentCaregiver")
-    if !exists {
-        ctx.JSON(http.StatusUnauthorized, gin.H{"status": "fail", "message": "Caregiver not found"})
-        return
-    }
-    caregiver, ok := currentCaregiver.(models.Caregiver)
-    if !ok {
-        ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Caregiver information is not valid"})
-        return
-    }
 
-    // Get the list of JobIDs for which the current caregiver has applied
-    var appliedJobIDs []uuid.UUID
-    cc.DB.Model(&models.JobApplication{}).Where("caregiver_user_id = ?", caregiver.CaregiverUserID).Pluck("job_id", &appliedJobIDs)
 
     // Retrieve all jobs that the caregiver hasn't applied for, preloading Member and User data
-    result := cc.DB.Preload("Member").Preload("Member.User").Where("job_id NOT IN ?", appliedJobIDs).Find(&jobs)
+    result := cc.DB.Preload("Member").Preload("Member.User").Find(&jobs)
     if result.Error != nil {
         ctx.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Failed to retrieve jobs"})
         return
@@ -53,6 +39,7 @@ func (cc *CaregiverController) GetJobs(ctx *gin.Context) {
     // Return the list of jobs
     ctx.JSON(http.StatusOK, gin.H{"status": "success", "jobs": jobs})
 }
+
 func (cc *CaregiverController) GetCaregiverApplications(ctx *gin.Context) {
     currentCaregiver, exists := ctx.Get("currentCaregiver")
     if !exists {
